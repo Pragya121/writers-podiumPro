@@ -1,8 +1,9 @@
 import err from '../assets/images/error.gif';
+import design from '../assets/images/design.png';
 import loader from '../assets/images/loader.gif';
 import logo from '../assets/images/app_logo.png'
 import { initializeApp } from 'firebase/app';
-import { getAuth, signInWithPopup, GoogleAuthProvider  } from "firebase/auth";
+import { getAuth, signInWithPopup, GoogleAuthProvider , signOut } from "firebase/auth";
 
 
 
@@ -22,5 +23,5 @@ const auth = getAuth();
 const provider = new GoogleAuthProvider();
 provider.addScope('https://www.googleapis.com/auth/contacts.readonly');
 export default {
-    err, loader, logo, app, provider, auth
+    err, loader, logo, app, provider, auth, design, signOut
 }
