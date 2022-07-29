@@ -1,6 +1,7 @@
 import React from 'react'
 import "./Home.css"
 import data from "../assets/data"
+
 function Home() {
   const isLoading = React.useState(false);
   const [loginData, setLoginData] = React.useState(
@@ -14,6 +15,7 @@ function Home() {
       ? JSON.parse(localStorage.getItem("token"))
       : null
   );
+
   const signOut = (e)=>{
 
     data.signOut(data.auth).then(() => {
@@ -29,7 +31,10 @@ function Home() {
     });
    
    }
-   console.log(token);
+
+  
+
+ 
   return (
     <div> <div className="home-profile">
     <div className="app__wrapper">
