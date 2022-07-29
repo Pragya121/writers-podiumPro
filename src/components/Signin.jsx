@@ -3,6 +3,7 @@ import data from "../assets/data";
 import Home from "./Home"
 import Footer from "./Footer"
 import Navbar from "./Navbar"
+import App from "../App"
 import "./Signin.css";
 import { signInWithPopup, GoogleAuthProvider } from "firebase/auth";
 const Signin = () => {
@@ -23,13 +24,13 @@ const Signin = () => {
       
       const credential = GoogleAuthProvider.credentialFromResult(result);
       const token = credential.accessToken;
-     
+    //  console.log(credential);
       const user = result.user;
       localStorage.setItem("loginData",JSON.stringify(user));
-      localStorage.setItem("token",JSON.stringify(token));
-      setToken(token);
+      localStorage.setItem("token",JSON.stringify(user.accessToken));
+      setToken(user.accessToken);
       setLoginData(user);
-      console.log(user,token)
+      console.log(user)
     
     }).catch((error) => {
       // Handle Errors here.
@@ -58,11 +59,9 @@ const Signin = () => {
       </div>
       <div className="container"> 
       <button className="googleSignIn" onClick={handleGoogleclick}> Sign in with Google </button> 
-      <button className="googleSignIn" onClick={handleSignOut}> Sign Out </button>  </div>
+       </div>
     </div> : <div>
-      <Navbar/>
-      <Home/>
-      <Footer/>
+      <App></App>
       </div>}
    
   </span>

@@ -1,8 +1,8 @@
 import React from 'react'
-import images from '../assets/img'
+import data  from '../assets/data'
 const Loading = () => {
   return (
-    <img src={images.loader} alt="loading...please wait" />
+    <img src={data.loader} alt="loading...please wait" />
   )
 }
 
