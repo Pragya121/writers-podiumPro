@@ -108,9 +108,9 @@ function App() {
         <div className="app__wrapper">
         <ul className='app__navbar-links'>
         {/* <button className="googleSignIn" onClick={handleSignOut}> Sign Out </button> */}
-        <li className='p__opensans'>   <button onClick={signOut}>Sign Out</button></li>
-        <li className='p__opensans'> <Link to="/currentTasks"> <button> View ongoing tasks </button></Link></li>
-        <li className='p__opensans'><Link to="/newTasks">  <button>Accept/Reject tasks</button></Link> </li>
+        <li className='p__opensans'>   <button className='custom__button' onClick={signOut}>Sign Out</button></li>
+        <li className='p__opensans'> <Link to="/currentTasks"> <button className='custom__button'> View ongoing tasks </button></Link></li>
+        <li className='p__opensans'><Link to="/newTasks">  <button className='custom__button'>Accept/Reject tasks</button></Link> </li>
         <Outlet />
       </ul>
         </div>

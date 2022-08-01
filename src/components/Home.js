@@ -44,7 +44,7 @@ function Home() {
       </div>
        
       {loginData && (
-        <button className="ui button blue" onClick={signOut}>
+        <button className="custom__button" onClick={signOut}>
           LogOut
         </button>
      )} 

@@ -58,6 +58,8 @@ const tableIcons = {
 
 function NewTasks() {
   const [isLoading, setIsLoading]  = React.useState(false);
+  const [assignReq, setassignReq] = React.useState([])
+  const [availTask, setavailTask] = React.useState([])
   const [user, setUser] = React.useState( localStorage.getItem("user")
   ? JSON.parse(localStorage.getItem("token"))
   :{});
@@ -67,7 +69,7 @@ function NewTasks() {
       ? JSON.parse(localStorage.getItem("token"))
       : null
   );
-  const [tdata, settdata] = React.useState([])
+  const [tdata, settdata] = React.useState("")
   const [isCopied, setisCopied] = React.useState(false);
   async function copyTextToClipboard(text) {
     if ("clipboard" in navigator) {
@@ -172,20 +174,23 @@ function NewTasks() {
      idToken=token;
    }
    try {
-    debugger;
+    
      let config = {
        headers: {
          Authorization: `Bearer ${idToken}`,
        },
      };
      const response = await data.axios.get(
-       `${data.BASE_URL}/userTaskActions?isMyTask=true`,
+       `${data.BASE_URL}/userTaskActions?isMyTask=false`,
      
        config
      );
  
      const resp = response.data;
-     settdata(resp);
+    //  settdata(resp);
+    setassignReq(resp.assignRequests);
+    setavailTask(resp.availableTasks);
+
      console.log(`info`, resp);
  
      setIsLoading(false);
@@ -218,22 +223,52 @@ function NewTasks() {
       </div>):(
    <div>
       <Navbar/>
+
       <div className="app__wrapper"> 
+
+
       <h1> Currently available tasks</h1> 
+
+     <p>
+      Please select which tasks are to be displayed :
+      <select 
+      onChange={(e)=>{
+        settdata(e.target.value);
+      }}>
+        <option>Available Tasks</option>
+        <option>Assigned requests</option>
+      </select>
+     </p>
     <div >
-      <MaterialTable
-      title="Tasks"
-      columns={columns}
-      data={tdata}        
-      // actions={[
-      //   {
-      //     icon: 'save',
-      //     tooltip: 'Save User',
-      //     onClick: (event, rowData) => alert("You saved ")
-      //   }
-      // ]}
-    />
-      </div>
+    {
+      tdata==="Available Tasks"?(
+        <MaterialTable
+        title=" All available tasks for you"
+        columns={columns}
+        data={availTask}        
+        // actions={[
+        //   {
+        //     icon: 'save',
+        //     tooltip: 'Save User',
+        //     onClick: (event, rowData) => alert("You saved ")
+        //   }
+        // ]}
+      />
+      ):(  <MaterialTable
+        title="Assign request, please accept or reject"
+        columns={columns}
+        data={assignReq}        
+        // actions={[
+        //   {
+        //     icon: 'save',
+        //     tooltip: 'Save User',
+        //     onClick: (event, rowData) => alert("You saved ")
+        //   }
+        // ]}
+      />)
+    }
+    
+          </div>
       
       </div>
       <Footer/>
