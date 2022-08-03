@@ -1,4 +1,6 @@
 import React, { forwardRef } from "react";
+import ComboBox from "react-responsive-combo-box";
+import "react-responsive-combo-box/dist/index.css";
 import AddBox from "@material-ui/icons/AddBox";
 import ArrowDownward from "@material-ui/icons/ArrowDownward";
 import Footer from "./components/Footer";
@@ -21,6 +23,7 @@ import Remove from "@material-ui/icons/Remove";
 import SaveAlt from "@material-ui/icons/SaveAlt";
 import Search from "@material-ui/icons/Search";
 import ViewColumn from "@material-ui/icons/ViewColumn";
+import Signin from "./components/Signin";
 
 const theme = createTheme({
   palette: {
@@ -104,6 +107,108 @@ function CurrentTask() {
   };
   const columns = [
     { title: "Firestore Id", field: "firestoreID", hidden: true },
+
+    {
+      title: "Change Task Status",
+      field: "taskStatus",
+      render: (rowData) => {
+        let options = [];
+
+        let currentVal = rowData.taskStatus;
+        let index = dynamicFields.taskStatuses
+          ? dynamicFields.taskStatuses.indexOf(currentVal)
+          : 0;
+        if (index > dynamicFields.statusRepetitionIndex) {
+          index = dynamicFields.statusRepetitionIndex;
+        }
+        let selected ="";
+        options = dynamicFields.taskStatuses.slice(index);
+        return (
+          <div>
+            <ComboBox
+              options={options}
+           
+              style={{
+                width: "350px",
+                margin: "0 auto",
+                marginTop: "50px"
+              }}
+              focusColor="#20C374"
+             
+              placeholder={rowData.taskStatus}
+              renderOptions={(option) => (
+                <div className="comboBoxOption">{option}</div>
+              )}
+              enableAutocomplete
+              onSelect={(opt)=>{
+                selected = opt;
+              }}
+              defaultIndex={index}
+            />
+            {/* <select
+            id={rowData.realtimeID}
+            onChange={(event) => {
+              // rowData.taskStatus = event.target.value;
+              console.log(rowData);
+            }}
+            color="primary"
+            variant="contained"
+            style={{ textTransform: "none" }}
+            size="small"
+            defaultValue={ rowData.taskStatus}
+          >
+          <option>{rowData.taskStatus}</option>
+          </select> */}
+
+            {/* <button
+              onClick={(e) => {
+                let selectBox = document.getElementById(rowData.realtimeID);
+                let currentVal = rowData.taskStatus;
+                let index = dynamicFields.taskStatuses
+                  ? dynamicFields.taskStatuses.indexOf(currentVal)
+                  : 0;
+                if (index > dynamicFields.statusRepetitionIndex) {
+                  index = dynamicFields.statusRepetitionIndex;
+                }
+                let newStatusArr = dynamicFields.taskStatuses.slice(index);
+                if (selectBox) {
+                  selectBox.innerHTML = "";
+                  selectBox.options[0] = null;
+                  newStatusArr.forEach((status) => {
+                    const newOption = document.createElement("option");
+                    const optionText = document.createTextNode(status);
+
+                    newOption.appendChild(optionText);
+
+                    newOption.setAttribute("value", status);
+
+                    selectBox.appendChild(newOption);
+                    selectBox.value = rowData.taskStatus;
+                  });
+                }
+              }}
+            >
+              Refresh options
+            </button> */}
+            <button
+              onClick={(e) => {
+                // let selectBox = document.getElementById(rowData.realtimeID);
+               if(selected !== "")
+                { rowData.taskStatus = selected;
+                setNewStatus(e, rowData);}
+           
+              else{
+                alert("Please select any option to change status")
+              }   } 
+            
+            }
+            >
+              Done
+            </button>
+          </div>
+        );
+      },
+    },
     {
       title: "Name",
       field: "taskName",
@@ -201,8 +306,8 @@ function CurrentTask() {
   const setNewStatus = async (event, rowData) => {
     //api calls
     let finalData = {
-      taskData : rowData,
-    }
+      taskData: rowData,
+    };
     setIsLoading(true);
     let idToken = await data.getIdToken();
     if (!idToken) {
@@ -222,14 +327,16 @@ function CurrentTask() {
 
       const resp = response.data;
       alert(resp);
-      if(response.status === 200){
-        let index = tdata.findIndex((row)=>{return row.firestoreID=== rowData.firestoreID})
+      if (response.status === 200) {
+        let index = tdata.findIndex((row) => {
+          return row.firestoreID === rowData.firestoreID;
+        });
         // let tempData= data.slice(index,1)
-        let tempData= tdata
-        tempData[index]= rowData
-       settdata(tempData);
+        let tempData = tdata;
+        tempData[index] = rowData;
+        settdata(tempData);
       }
-     
+
       console.log(`info`, resp);
 
       setIsLoading(false);
@@ -242,6 +349,7 @@ function CurrentTask() {
   };
   const getUserInfo = async () => {
     setIsLoading(true);
+    let dfields = await getdynamicFields();
     let idToken = await data.getIdToken();
     if (!idToken) {
       idToken = token;
@@ -259,6 +367,7 @@ function CurrentTask() {
       );
 
       const resp = response.data;
+
       settdata(resp);
       console.log(`info`, resp);
 
@@ -273,95 +382,98 @@ function CurrentTask() {
 
   React.useEffect(() => {
     getUserInfo();
-    getdynamicFields();
   }, []);
 
-  return isLoading ? (
-    <div>
-      <Navbar />
-      <div className="app__wrapper">
-        <Loading />
-      </div>
-
-      <Footer />
-    </div>
-  ) : (
-    <div>
-      <Navbar />
-      <div className="app__wrapper">
-        <h1> Currently ongoing tasks</h1>
-        <div>
-          <MaterialTable
-            title="Tasks"
-            columns={columns}
-            data={tdata}
-            actions={[
-              {
-                icon: "save",
-                tooltip: "Change task status",
-                onClick: (event, rowData) => setNewStatus(event, rowData),
-              },
-            ]}
-            components={{
-              Action: (props) => {
-                let selectBox = document.getElementById("selectbox");
-                let currentVal = selectBox ? selectBox.value : "";
-                let index = dynamicFields.taskStatuses
-                  ? dynamicFields.taskStatuses.indexOf(currentVal)
-                  : 0;
-                if (index >= dynamicFields.statusRepetitionIndex) {
-                  index = dynamicFields.statusRepetitionIndex;
-                }
-                let newStatusArr = dynamicFields.taskStatuses.slice(index);
-                if (selectBox) {
-                  selectBox.innerHTML = "";
-                  selectBox.options[0] = null;
-                  newStatusArr.forEach((status) => {
-                    const newOption = document.createElement("option");
-                    const optionText = document.createTextNode(status);
-
-                    newOption.appendChild(optionText);
-
-                    newOption.setAttribute("value", status);
-
-                    selectBox.appendChild(newOption);
-                    selectBox.value = props.data.taskStatus
-                  });
-                }
-
-                return (
-                  <div>
-                    <select
-                      id="selectbox"
-                      onChange={(event) => {
-                        props.data.taskStatus = event.target.value;
-                        console.log(props);
-                      }}
-                      color="primary"
-                      variant="contained"
-                      style={{ textTransform: "none" }}
-                      size="small"
-                      defaultValue={props.data.taskStatus}
-                    >
-                      <option>{props.data.taskStatus}</option>
-                    </select>
-                    <button
-                      onClick={(e) => {
-                        props.action.onClick(e, props.data);
-                      }}
-                    >
-                      Done
-                    </button>
-                  </div>
-                );
-              },
-            }}
-          />
+  if (user) {
+    return isLoading ? (
+      <div>
+        <Navbar />
+        <div className="app__wrapper">
+          <Loading />
         </div>
+
+        <Footer />
       </div>
-      <Footer />
-    </div>
-  );
+    ) : (
+      <div>
+        <Navbar />
+        <div className="app__wrapper">
+          <h1> Currently ongoing tasks</h1>
+          <div>
+            <MaterialTable
+              title="Tasks"
+              columns={columns}
+              data={tdata}
+              // actions={[
+              //   {
+              //     icon: "save",
+              //     tooltip: "Change task status",
+              //     onClick: (event, rowData) => setNewStatus(event, rowData),
+              //   },
+              // ]}
+              // components={{
+              //   Action: (props) => {
+              //     let selectBox = document.getElementById("selectbox");
+              //     let currentVal = selectBox ? selectBox.value : "";
+              //     let index = dynamicFields.taskStatuses
+              //       ? dynamicFields.taskStatuses.indexOf(currentVal)
+              //       : 0;
+              //     if (index >= dynamicFields.statusRepetitionIndex) {
+              //       index = dynamicFields.statusRepetitionIndex;
+              //     }
+              //     let newStatusArr = dynamicFields.taskStatuses.slice(index);
+              //     if (selectBox) {
+              //       selectBox.innerHTML = "";
+              //       selectBox.options[0] = null;
+              //       newStatusArr.forEach((status) => {
+              //         const newOption = document.createElement("option");
+              //         const optionText = document.createTextNode(status);
+
+              //         newOption.appendChild(optionText);
+
+              //         newOption.setAttribute("value", status);
+
+              //         selectBox.appendChild(newOption);
+              //         selectBox.value = props.data.taskStatus
+              //       });
+              //     }
+
+              //     return (
+              //       <div>
+              //         <select
+              //           id="selectbox"
+              //           onChange={(event) => {
+              //             props.data.taskStatus = event.target.value;
+              //             console.log(props);
+              //           }}
+              //           color="primary"
+              //           variant="contained"
+              //           style={{ textTransform: "none" }}
+              //           size="small"
+              //           defaultValue={props.data.taskStatus}
+              //         >
+              //           <option>{props.data.taskStatus}</option>
+              //         </select>
+              //         <button
+              //           onClick={(e) => {
+              //             props.action.onClick(e, props.data);
+              //           }}
+              //         >
+              //           Done
+              //         </button>
+              //       </div>
+              //     );
+              //   },
+              // }}
+            />
+          </div>
+        </div>
+        <Footer />
+      </div>
+    );
+  } else {
+    return <Signin />;
+  }
 }
 
 export default CurrentTask;

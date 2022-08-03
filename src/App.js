@@ -77,7 +77,7 @@ function App() {
     setIsLoading(false);
      console.error(errors);
     
-     alert(errors.response.data.method);
+     alert(errors.response.data.message);
    }
  
    }
