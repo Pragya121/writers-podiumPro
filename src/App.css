@@ -45,6 +45,9 @@
 .app__wrapper_img img {
   width: 80%;
 }
+.app__links__tasks{
+  list-style: none;
+}
 
 .custom__button {
   background-color: var(--color-crimson);

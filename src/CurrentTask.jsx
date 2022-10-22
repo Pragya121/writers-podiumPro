@@ -67,17 +67,21 @@ function CurrentTask() {
     statusRepetitionIndex: 0,
     taskStatuses: [],
   });
-  const [user, setUser] = React.useState(
-    localStorage.getItem("user")
-      ? JSON.parse(localStorage.getItem("token"))
-      : {}
+  const [user, setUser] = React.useState( localStorage.getItem("user")
+  ? JSON.parse(localStorage.getItem("user"))
+  :{});
+  const [loginData, setLoginData] = React.useState(
+    localStorage.getItem("loginData")
+      ? JSON.parse(localStorage.getItem("loginData"))
+      : null
   );
-  const role = user ? user.role : null;
+  // const signedIn = React.useState(false);
   const [token, setToken] = React.useState(
     localStorage.getItem("token")
       ? JSON.parse(localStorage.getItem("token"))
       : null
   );
+  const role = user ? user.role : null;
   const [tdata, settdata] = React.useState([]);
   const [isCopied, setisCopied] = React.useState(false);
   async function copyTextToClipboard(text) {
@@ -92,7 +96,6 @@ function CurrentTask() {
       const response = await data.axios.get(`${data.BASE_URL}/configVariables`);
       let num = 0;
       const resp = response.data;
-      console.log(resp);
 
       let statusObj = {
         statusRepetitionIndex: resp.statusRepetitionIndex,
@@ -149,7 +152,6 @@ function CurrentTask() {
             id={rowData.realtimeID}
             onChange={(event) => {
               // rowData.taskStatus = event.target.value;
-              console.log(rowData);
             }}
             color="primary"
             variant="contained"
@@ -241,14 +243,17 @@ function CurrentTask() {
       title: "Description",
       field: "taskDescription",
       export: false,
-      render: (rowData) => (
-        <div
-          style={{ maxHeight: "200px", maxWidth: "150px", overflow: "auto" }}
-        >
-          {" "}
-          {rowData.taskDescription}{" "}
-        </div>
-      ),
+      render: (rowData) => {
+        if(typeof rowData.taskDescription === "string"){
+          return (
+            <div style={{ maxHeight: 200, minWidth: 200, overflow: "auto" }}>
+              {rowData.taskDescription}
+            </div>
+          )
+        }else{
+          return (<>JSON.stringify(rowData.taskDescription)</>)
+        }
+      },
     },
     { title: "Domain", field: "taskDomain" },
     { title: "Type of task", field: "taskType" },
@@ -286,7 +291,6 @@ function CurrentTask() {
                     let button1 = document.querySelector("#copy");
                     button1.color = "success";
                     button1.value = "Copied!";
-                    console.log("copied", button1);
                   })
                   .catch((err) => {
                     console.log(err);
@@ -337,7 +341,6 @@ function CurrentTask() {
         settdata(tempData);
       }
 
-      console.log(`info`, resp);
 
       setIsLoading(false);
       return resp;
@@ -369,13 +372,12 @@ function CurrentTask() {
       const resp = response.data;
 
       settdata(resp);
-      console.log(`info`, resp);
 
       setIsLoading(false);
       return resp;
     } catch (errors) {
       console.error(errors);
-      alert(errors.response.data);
+      alert("There was some problem in loading the data.");
       setIsLoading(false);
     }
   };
@@ -384,7 +386,7 @@ function CurrentTask() {
     getUserInfo();
   }, []);
 
-  if (user) {
+  if(token && role==="writer") {
     return isLoading ? (
       <div>
         <Navbar />
@@ -444,7 +446,6 @@ function CurrentTask() {
               //           id="selectbox"
               //           onChange={(event) => {
               //             props.data.taskStatus = event.target.value;
-              //             console.log(props);
               //           }}
               //           color="primary"
               //           variant="contained"
@@ -471,7 +472,14 @@ function CurrentTask() {
         <Footer />
       </div>
     );
-  } else {
+  }
+  if(token && role!=="writer"){
+    return(<>
+    <Navbar/>
+  <h1>Coming Soon</h1>
+    </>)
+  }
+  else {
     return <Signin />;
   }
 }

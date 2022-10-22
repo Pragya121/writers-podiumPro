@@ -60,20 +60,24 @@ const tableIcons = {
 };
 
 function NewTasks() {
+  const [user, setUser] = React.useState( localStorage.getItem("user")
+  ? JSON.parse(localStorage.getItem("user"))
+  :{});
   const [isLoading, setIsLoading] = React.useState(false);
   const [assignReq, setassignReq] = React.useState([]);
   const [availTask, setavailTask] = React.useState([]);
-  const [user, setUser] = React.useState(
-    localStorage.getItem("user")
-      ? JSON.parse(localStorage.getItem("token"))
-      : {}
+  const [loginData, setLoginData] = React.useState(
+    localStorage.getItem("loginData")
+      ? JSON.parse(localStorage.getItem("loginData"))
+      : null
   );
-  const role = user ? user.role : null;
+  // const signedIn = React.useState(false);
   const [token, setToken] = React.useState(
     localStorage.getItem("token")
       ? JSON.parse(localStorage.getItem("token"))
       : null
   );
+  const role = user ? user.role : null;
   const [tdata, settdata] = React.useState("");
   const [isCopied, setisCopied] = React.useState(false);
   async function copyTextToClipboard(text) {
@@ -116,15 +120,19 @@ function NewTasks() {
     {
       title: "Description",
       field: "taskDescription",
-      export: false,
-      render: (rowData) => (
-        <div
-          style={{ maxHeight: "200px", maxWidth: "150px", overflow: "auto" }}
-        >
-          {" "}
-          {rowData.taskDescription}{" "}
-        </div>
-      ),
+     
+      render: (rowData) => {
+        if(typeof rowData.taskDescription === "string"){
+          return (
+            <div style={{ maxHeight: 200, minWidth: 200, overflow: "auto" }}>
+              {rowData.taskDescription}
+            </div>
+          )
+        }else{
+          return (<>JSON.stringify(rowData.taskDescription)</>)
+        }
+      },
+   
     },
     { title: "Domain", field: "taskDomain" },
     { title: "Type of task", field: "taskType" },
@@ -158,7 +166,6 @@ function NewTasks() {
                     let button1 = document.querySelector("#copy");
                     button1.color = "success";
                     button1.value = "Copied!";
-                    console.log("copied", button1);
                   })
                   .catch((err) => {
                     console.log(err);
@@ -199,13 +206,13 @@ function NewTasks() {
       setassignReq(resp.assignRequests);
       setavailTask(resp.availableTasks);
 
-      console.log(`info`, resp);
 
       setIsLoading(false);
       return resp;
     } catch (errors) {
       console.error(errors);
-      alert(errors.response.data.message);
+      // alert(errors.response.data.message);
+      alert("Some problem encountered. Please try again");
       setIsLoading(false);
     }
   };
@@ -265,8 +272,6 @@ function NewTasks() {
       }
      
 
-      console.log(`info`, resp);
-
       setIsLoading(false);
       return resp;
     } catch (errors) {
@@ -281,7 +286,7 @@ function NewTasks() {
 
 
 
-if(user){
+if(token && role==="writer"){
   
   
   return isLoading ? (
@@ -300,13 +305,17 @@ if(user){
     <div className="app__wrapper">
       <h1> Currently available tasks</h1>
 
-      <p>
+      <p  style = {{
+         fontSize: 30 
+      }}>
         Please select which tasks are to be displayed :
-        <select
+        <select  style = {{
+         fontSize: 30 
+      }}
           onChange={(e) => {
             settdata(e.target.value);
           }}
-        >
+        ><option>Please select</option>
           <option>Available Tasks</option>
           <option>Assigned requests</option>
         </select>
@@ -373,7 +382,6 @@ if(user){
                         // props.action.onClick(e, props.data);
                         setTask(e, props.data, true, "accept")
 
-                        console.log(props);
                       }}
                     >
                       Accept
@@ -397,6 +405,12 @@ if(user){
     <Footer />
   </div>
 );}
+if(token && role!=="writer"){
+  return(<>
+  <Navbar/>
+<h1>Coming Soon</h1>
+  </>)
+}
 
 else{
   return <Signin/>

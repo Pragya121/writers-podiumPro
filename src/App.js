@@ -10,24 +10,31 @@ import Signin from './components/Signin';
 import { Outlet, Link } from "react-router-dom";
 function App() {
   const [isLoading, setIsLoading]  = React.useState(false);
-
+  const [isSignedout, setIsSignedout]  = React.useState(false);
   const [user, setUser] = React.useState( localStorage.getItem("user")
-  ? JSON.parse(localStorage.getItem("token"))
+  ? JSON.parse(localStorage.getItem("user"))
   :{});
+  const [loginData, setLoginData] = React.useState(
+    localStorage.getItem("loginData")
+      ? JSON.parse(localStorage.getItem("loginData"))
+      : null
+  );
   const role = user?user.role: null;
   const [token, setToken] = React.useState(
     localStorage.getItem("token")
       ? JSON.parse(localStorage.getItem("token"))
       : null
   );
+ 
 
   const signOut = (e)=>{
     setIsLoading(true);
+    setIsSignedout(true)
     data.signOut(data.auth).then(() => {
       // Sign-out successful.
-      console.log("Signed out")
       localStorage.removeItem("token");
       localStorage.removeItem("loginData");
+      localStorage.removeItem("user");
       setIsLoading(false)
       window.location.reload();
     }).catch((error) => {
@@ -58,7 +65,6 @@ function App() {
  
      const resp = response.data;
  
-     console.log(`info`, resp);
      setIsLoading(false);
      if(response.status === 404){
        alert(resp);
@@ -71,19 +77,22 @@ function App() {
      //   alert("This is not a writer's profile, Please retry with a writer account.")
      //   signOut();
      // }
-
      return resp;
    } catch (errors) {
     setIsLoading(false);
      console.error(errors);
     
-     alert(errors.response.data.message);
+     alert("There was some problem is fetching data, please try again");
    }
  
    }
  
    React.useEffect(() => {
-    getUserInfo();
+   
+    if(!isSignedout && token){
+
+      getUserInfo();
+    }
    }, [])
   
 
@@ -106,7 +115,8 @@ function App() {
           </div>):(   <div>
         <Navbar/>
         <div className="app__wrapper">
-        <ul className='app__navbar-links'>
+        <ul className='app__links__tasks'>
+          <h1>Podium Pro Writers</h1>
         {/* <button className="googleSignIn" onClick={handleSignOut}> Sign Out </button> */}
         <li className='p__opensans'>   <button className='custom__button' onClick={signOut}>Sign Out</button></li>
         <li className='p__opensans'> <Link to="/currentTasks"> <button className='custom__button'> View ongoing tasks </button></Link></li>
